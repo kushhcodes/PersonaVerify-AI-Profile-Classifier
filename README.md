@@ -1,13 +1,13 @@
-# 🔍 PersonaVerify: Explainable AI Profile Authenticity Classifier
+# 🔍 PersonaVerify: AI Profile Classifier
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Django](https://img.shields.io/badge/Django-4.2-092E20?logo=django)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3-F7931E?logo=scikit-learn)
 ![Pandas](https://img.shields.io/badge/pandas-Data_Processing-150458?logo=pandas)
 
-**PersonaVerify** is an end-to-end Machine Learning web application engineered to detect fake social media profiles. Built with a focus on trust and transparency, it utilizes a `RandomForestClassifier` trained on account metadata and linguistic patterns. 
+**PersonaVerify: AI Profile Classifier** is an end-to-end Machine Learning web application engineered to detect fake social media profiles. Built with a focus on trust and transparency, it utilizes a `RandomForestClassifier` trained on account metadata and linguistic patterns. 
 
-What sets PersonaVerify apart is its **Local Feature Interpretability Dashboard**, powered by a custom Explainable AI (XAI) engine that breaks down the "black box" of machine learning to show exact, mathematical reasons why a profile receives a specific authenticity score.
+What sets PersonaVerify: AI Profile Classifier apart is its **Local Feature Interpretability Dashboard**, powered by a custom Explainable AI (XAI) engine that breaks down the "black box" of machine learning to show exact, mathematical reasons why a profile receives a specific authenticity score.
 
 ---
 
@@ -59,7 +59,7 @@ graph LR
 
 ## 🧠 Explainable AI (XAI) Methodology
 
-Traditional Random Forests output a singular confidence probability. PersonaVerify implements **Tree Decision Path Decomposition** to unpack this.
+Traditional Random Forests output a singular confidence probability. PersonaVerify: AI Profile Classifier implements **Tree Decision Path Decomposition** to unpack this.
 
 **How it works (inside `explainer.py`):**
 1. The API receives a request and routes it to the specific nodes activated inside the Random Forest.
@@ -72,7 +72,7 @@ Traditional Random Forests output a singular confidence probability. PersonaVeri
 
 ## 🔌 API Reference
 
-PersonaVerify exposes robust endpoints for downstream integrations:
+PersonaVerify: AI Profile Classifier exposes robust endpoints for downstream integrations:
 
 ### 1. Single Profile Prediction
 **`POST /api/predict/`**
