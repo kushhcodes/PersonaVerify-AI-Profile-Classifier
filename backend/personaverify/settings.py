@@ -2,7 +2,7 @@
 Django settings for PersonaVerify project.
 AI-powered Fake Profile Detection API.
 """
-
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -10,7 +10,7 @@ PROJECT_ROOT = BASE_DIR.parent  # Points to /PersonaVerify/
 
 SECRET_KEY = 'django-insecure-personaverify-dev-key-change-in-production'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -112,3 +112,5 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
