@@ -7,6 +7,7 @@ API views for the PersonaVerify prediction service.
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser
 from .serializers import ProfileInputSerializer, PredictionOutputSerializer
 from .services import predict_profile
 
@@ -113,6 +114,8 @@ class BulkPredictView(APIView):
     POST /api/predict-bulk/
     Accepts a multipart file upload containing a CSV.
     """
+    parser_classes = [MultiPartParser]
+
     def post(self, request):
         from .services import predict_bulk_csv
         
