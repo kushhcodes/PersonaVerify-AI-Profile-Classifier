@@ -38,29 +38,21 @@ Fake social media profiles are widely used for spam, misinformation, and fraud. 
 
 ---
 
-## 📸 Screenshots
+## 🎯 Live Demo
 
-### 🔴 Fake Profile Detection
-![Fake Profile Prediction](docs/screenshots/fake_prediction.png)
-> *A profile with no bio, spammy username (75% numeric), and 3500 following but only 18 followers — correctly classified as Fake with 91.5% confidence.*
+To see the system in action, clone the repo and run it locally — the UI is served at `http://127.0.0.1:8000/` with a dark-themed dashboard, single prediction form, bulk CSV upload, and model info tab all built in.
 
-### 🟢 Real Profile Detection
-![Real Profile Prediction](docs/screenshots/real_prediction.png)
-> *A profile with a bio, profile picture, clean username, and healthy follower ratio — correctly classified as Real.*
+**Try a fake profile instantly:**
+```
+No profile pic · Username 75% numeric · No bio · 18 followers · Following 3500 · 2 posts
+→ Result: 🔴 Fake — 91.5% confidence
+```
 
-### ⚖️ Model Comparison
-![Model Comparison](docs/screenshots/model_comparison.png)
-> *All 3 models (Logistic Regression, Decision Tree, Random Forest) run on the same input — showing consensus and individual confidence scores.*
-
-### 📊 Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
-> *Live dashboard showing total predictions, fake/real split, and recent prediction history.*
-
-### 🤖 Model Info & Feature Importances
-![Model Info](docs/screenshots/model_info.png)
-> *Side-by-side accuracy comparison of all 3 models, plus Random Forest feature importance bar chart.*
-
-> 📌 **Add your actual screenshots** to `docs/screenshots/` after running the project.
+**Try a real profile:**
+```
+Has profile pic · Clean username · Bio 85 chars · 980 followers · Following 420 · 142 posts
+→ Result: 🟢 Real — low fake probability
+```
 
 ---
 
