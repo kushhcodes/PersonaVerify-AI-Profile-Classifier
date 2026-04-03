@@ -1,167 +1,369 @@
-# 🔍 PersonaVerify: AI Profile Classifier
+# 🔍 PersonaVerify — AI Fake Profile Classifier
 
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
-![Django](https://img.shields.io/badge/Django-4.2-092E20?logo=django)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3-F7931E?logo=scikit-learn)
-![Pandas](https://img.shields.io/badge/pandas-Data_Processing-150458?logo=pandas)
+<div align="center">
 
-**PersonaVerify: AI Profile Classifier** is an end-to-end Machine Learning web application engineered to detect fake social media profiles. Built with a focus on trust and transparency, it utilizes a `RandomForestClassifier` trained on account metadata and linguistic patterns. 
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-4.2-092E20?style=for-the-badge&logo=django&logoColor=white)
+![DRF](https://img.shields.io/badge/Django_REST_Framework-3.15-red?style=for-the-badge&logo=django&logoColor=white)
+![Scikit-learn](https://img.shields.io/badge/Scikit--learn-1.4-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
+![Joblib](https://img.shields.io/badge/Joblib-1.4-blue?style=for-the-badge)
+![HTML/CSS/JS](https://img.shields.io/badge/Frontend-HTML%2FCSS%2FJS-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 
-What sets PersonaVerify: AI Profile Classifier apart is its **Local Feature Interpretability Dashboard**, powered by a custom Explainable AI (XAI) engine that breaks down the "black box" of machine learning to show exact, mathematical reasons why a profile receives a specific authenticity score.
+**Detect fake social media profiles using Machine Learning — with confidence scores and explainable AI.**
 
----
+[Features](#-features) · [Model Details](#-model-details) · [Run Locally](#-run-locally) · [API Usage](#-api-usage) · [Project Structure](#-project-structure)
 
-## 📑 Table of Contents
-- [✨ Key Features](#-key-features)
-- [🏗️ Technical Architecture](#-technical-architecture)
-- [🧠 Explainable AI (XAI) Methodology](#-explainable-ai-xai-methodology)
-- [🔌 API Reference](#-api-reference)
-- [🚀 Local Development Setup](#-local-development-setup)
-- [📂 Project Structure](#-project-structure)
+</div>
 
 ---
 
-## ✨ Key Features
+## 📌 Problem Statement
 
-1. **High-Accuracy Prediction Engine**
-   - Utilizes a 100-estimator `RandomForestClassifier`.
-   - Analyzes 11 core raw features, engineering them into 20 advanced metric ratios (e.g., Follower/Following ratio, alphanumeric username density, bio entropy).
-2. **"White-Box" Explainability Dashboard**
-   - Transcends basic predictions by rendering a localized, SHAP-style waterfall chart.
-   - Converts log-odds shifts into human-readable percentage impacts for every individual feature.
-3. **Bulk CSV Dataset Processing**
-   - An optimized pipeline to parse multi-row `.csv` files via `pandas`, allowing for batch-inference of thousands of profiles concurrently.
-4. **Persistent Telemetry Metrics**
-   - SQLite-backed dashboard tracking the live statistical throughput of the model in production (Fake vs. Real classification volumes).
+Fake social media profiles are widely used for spam, misinformation, and fraud. Detecting them manually is time-consuming and inconsistent. PersonaVerify is an end-to-end Machine Learning system that automatically classifies a social media profile as **Fake or Real** using 20 engineered features — including follower ratios, username patterns, and bio signals. It returns a **confidence score** (e.g. 89% fake probability) and explains *why* the prediction was made using **Random Forest feature importances**, making the system both accurate and interpretable.
 
 ---
 
-## 🏗️ Technical Architecture
+## ✨ Features
 
-The application is built using a decoupled client-server architecture:
+| Feature | Description |
+|---|---|
+| 🔴🟢 **Fake / Real Prediction** | Classifies any profile instantly using a trained Random Forest model |
+| 📊 **Confidence Score** | Returns probability (e.g. `89.0%`) — not just a binary label |
+| 🧠 **Explainable AI** | Shows top 5 features driving each prediction with importance scores |
+| ⚖️ **Compare All 3 Models** | Run the same profile through all 3 classifiers to compare results |
+| 📂 **Bulk CSV Upload** | Upload up to 500 profiles at once and get batch predictions |
+| 📈 **Live Dashboard** | Tracks all predictions — fake/real counts, recent history |
+| 🔌 **REST API** | Clean DRF-powered API — usable from any frontend or cURL |
+| 🛡️ **Input Validation** | DRF serializers validate every field — returns helpful 400 errors |
 
-```mermaid
-graph LR
-    A[Frontend Dashboard<br/>Vanilla JS / HTML / CSS] -->|REST API Request| B(Django Backend)
-    B --> C{Services Layer}
-    C -->|Feature Engineering| D[(Scikit-Learn Model)]
-    D --> E[Custom XAI Engine]
-    E --> C
-    C -->|Stores Telemetry| F[(SQLite Database)]
-    C -->|JSON Response| A
+---
+
+## 📸 Screenshots
+
+### 🔴 Fake Profile Detection
+![Fake Profile Prediction](docs/screenshots/fake_prediction.png)
+> *A profile with no bio, spammy username (75% numeric), and 3500 following but only 18 followers — correctly classified as Fake with 91.5% confidence.*
+
+### 🟢 Real Profile Detection
+![Real Profile Prediction](docs/screenshots/real_prediction.png)
+> *A profile with a bio, profile picture, clean username, and healthy follower ratio — correctly classified as Real.*
+
+### ⚖️ Model Comparison
+![Model Comparison](docs/screenshots/model_comparison.png)
+> *All 3 models (Logistic Regression, Decision Tree, Random Forest) run on the same input — showing consensus and individual confidence scores.*
+
+### 📊 Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+> *Live dashboard showing total predictions, fake/real split, and recent prediction history.*
+
+### 🤖 Model Info & Feature Importances
+![Model Info](docs/screenshots/model_info.png)
+> *Side-by-side accuracy comparison of all 3 models, plus Random Forest feature importance bar chart.*
+
+> 📌 **Add your actual screenshots** to `docs/screenshots/` after running the project.
+
+---
+
+## 🤖 Model Details
+
+### Dataset
+- **Source:** Instagram fake/real profile dataset
+- **Size:** 576 training profiles · 120 test profiles
+- **Balance:** Perfectly balanced — 50% Fake, 50% Real
+- **Features:** 11 raw + 9 engineered = **20 total features**
+
+### Engineered Features (Key Ones)
+| Feature | Why It Matters |
+|---|---|
+| `followers_following_ratio` | Fake accounts follow thousands but have few followers back |
+| `log_followers` | Log-transform reduces heavy right-skew in counts |
+| `no_pic_no_bio` | Combined red flag — no photo AND no bio |
+| `spammy_username` | Usernames with >30% numeric chars (e.g. `user19283746`) |
+| `post_per_follower` | Activity signal relative to audience size |
+
+### Model Comparison
+
+| Model | Accuracy | Precision | Recall | F1-Score | AUC-ROC |
+|---|---|---|---|---|---|
+| Logistic Regression | 93.33% | 90.62% | 96.67% | 93.55% | 98.33% |
+| Decision Tree | 87.50% | 85.71% | 90.00% | 87.80% | 90.11% |
+| **Random Forest ✅** | **94.17%** | **92.06%** | **96.67%** | **94.31%** | **99.51%** |
+
+**Why Random Forest was selected:**
+- Highest accuracy (94.17%) and AUC-ROC (99.51%)
+- Ensemble of 200 decision trees — reduces variance vs single tree
+- Naturally provides feature importances for Explainable AI
+- Robust to outliers and does not require feature scaling (though we scale for consistency with LR)
+
+---
+
+## 🚀 Run Locally
+
+### Prerequisites
+- Python 3.10+
+- pip
+
+### Steps
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/kushhcodes/PersonaVerify-AI-Profile-Classifier.git
+cd PersonaVerify-AI-Profile-Classifier
+
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate          # On Windows: venv\Scripts\activate
+
+# 3. Install all dependencies
+pip install -r requirements.txt
+
+# 4. Set up environment variables
+cp .env.example .env
+# Open .env and set your SECRET_KEY (or leave the default for local dev)
+
+# 5. Apply database migrations
+python manage.py makemigrations api
+python manage.py migrate
+
+# 6. Run the development server
+python manage.py runserver
 ```
 
-- **Backend:** Django with Django REST Framework (DRF) acting as the prediction API layer. Uses a Singleton pattern for Model Loading (`model_loader.py`) to keep the Random Forest artifact cached in RAM.
-- **Frontend:** A zero-dependency, data-science-style single-page application prioritizing a dense, technical UI.
-- **Machine Learning Data Pipeline:** Developed in Jupyter Notebooks. Uses `StandardScaler` for normalization.
+**Open your browser:**
+- 🌐 Frontend UI → http://127.0.0.1:8000/
+- 🔌 API Root    → http://127.0.0.1:8000/api/
+- ⚙️ Admin Panel → http://127.0.0.1:8000/admin/
 
 ---
 
-## 🧠 Explainable AI (XAI) Methodology
+## 🔌 API Usage
 
-Traditional Random Forests output a singular confidence probability. PersonaVerify: AI Profile Classifier implements **Tree Decision Path Decomposition** to unpack this.
+### `POST /api/predict/` — Single Profile Prediction
 
-**How it works (inside `explainer.py`):**
-1. The API receives a request and routes it to the specific nodes activated inside the Random Forest.
-2. The engine traces the path taken through **all 100 decision trees** for the specific input profile.
-3. At each node split, it calculates how the specific feature variable (e.g., `description_length`) shifted the probability array up or down.
-4. It aggregates these shifts across the forest, proving exactly how much each feature contributed to the final percentage score.
-5. The frontend plots these as a localized waterfall chart mapping positive and negative probability vectors.
+**Request:**
+```bash
+curl -X POST http://127.0.0.1:8000/api/predict/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "profile_pic": 0,
+    "nums_length_username": 0.75,
+    "fullname_words": 1,
+    "nums_length_fullname": 0,
+    "name_equals_username": 1,
+    "description_length": 0,
+    "external_url": 0,
+    "private": 0,
+    "posts_count": 2,
+    "followers_count": 18,
+    "following_count": 3500
+  }'
+```
 
----
-
-## 🔌 API Reference
-
-PersonaVerify: AI Profile Classifier exposes robust endpoints for downstream integrations:
-
-### 1. Single Profile Prediction
-**`POST /api/predict/`**
-Analyzes a single JSON payload.
+**Response:**
 ```json
-// Request
 {
-  "profile_pic": 1,
-  "nums_length_username": 0.12,
-  "fullname_words": 2,
-  "description_length": 45,
-  "followers": 1500,
-  "follows": 300,
-  ...
-}
-
-// Response (200 OK)
-{
-  "prediction": "Real",
-  "confidence_score": 0.985,
-  "explainability": {
-    "feature_contributions": [ ... ],
-    "risk_factors": [ ... ]
+  "prediction": "Fake",
+  "is_fake": true,
+  "confidence_score": 0.915,
+  "confidence_pct": "91.5%",
+  "real_probability": 0.085,
+  "label_color": "red",
+  "top_features": ["log_followers", "followers_following_ratio", "log_follows", "no_pic_no_bio", "spammy_username"],
+  "feature_insights": [
+    "18 followers",
+    "Follower/following ratio: 0.01 — low — suspicious",
+    "Log-scaled following: 8.16",
+    "No profile picture AND no bio (double red flag)",
+    "Spammy numeric username (red flag)"
+  ],
+  "feature_scores": {
+    "log_followers": 0.1823,
+    "followers_following_ratio": 0.1541,
+    "log_follows": 0.1102,
+    "no_pic_no_bio": 0.0891,
+    "spammy_username": 0.0743
   }
 }
 ```
 
-### 2. Bulk Dataset Inference
-**`POST /api/predict-bulk/`**
-Accepts a `multipart/form-data` payload containing a `.csv` file. Returns a mapped array of analysis results and aggregate totals.
-
-### 3. Model Telemetry
-**`GET /api/stats/`**
-Returns total predictions, and segmented counts of target outcomes. 
-
 ---
 
-## 🚀 Local Development Setup
+### `GET /api/dashboard/` — Live Stats
 
-### Prerequisites
-- Python 3.9+
-- pip
-
-### 1. Clone the repository
 ```bash
-git clone https://github.com/kushhcodes/PersonaVerify-AI-Profile-Classifier.git
-cd PersonaVerify-AI-Profile-Classifier
+curl http://127.0.0.1:8000/api/dashboard/
 ```
 
-### 2. Setup the Python Backend
+**Response:**
+```json
+{
+  "total_predictions": 42,
+  "total_fake": 27,
+  "total_real": 15,
+  "fake_percentage": 64.3,
+  "real_percentage": 35.7,
+  "recent_predictions": [...]
+}
+```
+
+---
+
+### `GET /api/model-info/` — Model Accuracy & Feature Importances
+
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run migrations for the Metrics database
-python manage.py migrate
-
-# Boot the API server
-python manage.py runserver
-```
-*The backend model server is now running at `http://127.0.0.1:8000`.*
-
-### 3. Launch Frontend Client
-There is no build step required for the frontend. Simply open `index.html` located in the `/frontend` directory directly in your Firefox, Chrome, or Safari browser.
-
----
-
-## 📂 Project Structure
-
-```text
-PersonaVerify/
-├── backend/                  # Django REST API Directory
-│   ├── predictor/            # Core ML application
-│   │   ├── explainer.py      # Core XAI decision path decomposition
-│   │   ├── model_loader.py   # RAM-optimized ML artifact caching 
-│   │   ├── services.py       # Data validation & inference pipeline
-│   │   └── models.py         # DB schema for Telemetry Tracking
-│   ├── model/                # Contains pre-trained .pkl Random Forest weights
-│   └── personaverify/        # Main Django router configuration
-├── frontend/                 # Client UI
-│   ├── index.html            # Data Science Dashboard Layout
-│   ├── style.css             # Theme and styling definitions
-│   └── script.js             # API interaction and Chart rendering logic
-└── PersonaVerify_FakeProfileDetection.ipynb  # Original ML Training Notebook
+curl http://127.0.0.1:8000/api/model-info/
 ```
 
 ---
-*Built to bring interpretability to trust and safety algorithms.*
+
+### `POST /api/compare-models/` — Run All 3 Models
+
+Uses the same request body as `/api/predict/`. Returns predictions from all 3 models with a consensus.
+
+---
+
+### `POST /api/bulk-predict/` — CSV Bulk Upload
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/bulk-predict/ \
+  -F "file=@test.csv"
+```
+
+---
+
+### All Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/predict/` | Single profile prediction |
+| `POST` | `/api/bulk-predict/` | CSV upload — batch predictions |
+| `GET` | `/api/dashboard/` | Aggregate stats and history |
+| `GET` | `/api/model-info/` | Model accuracy + feature importances |
+| `GET` | `/api/feature-info/` | Feature descriptions |
+| `POST` | `/api/compare-models/` | Compare all 3 models on same input |
+
+---
+
+## 📁 Project Structure
+
+```
+PersonaVerify-AI-Profile-Classifier/
+│
+├── manage.py                        # Django entry point
+├── requirements.txt                 # Python dependencies
+├── .env                             # Environment variables (SECRET_KEY, DEBUG)
+├── .env.example                     # Template for .env — safe to commit
+│
+├── backend/                         # Django project config
+│   ├── settings.py                  # All settings — reads from .env
+│   ├── urls.py                      # Main URL router
+│   └── wsgi.py                      # WSGI server entry point
+│
+├── api/                             # Core Django app
+│   ├── ml_engine.py                 # ML singleton — loads model at startup
+│   ├── views.py                     # All 6 API endpoint views
+│   ├── serializers.py               # DRF input validation + output formatting
+│   ├── models.py                    # PredictionLog + BulkUploadJob (SQLite)
+│   ├── urls.py                      # API URL patterns
+│   ├── apps.py                      # AppConfig — pre-loads ML model
+│   ├── admin.py                     # Django admin registrations
+│   └── frontend_urls.py             # Serves HTML frontend at /
+│
+├── ml_model/                        # Saved Joblib artifacts (from notebook)
+│   ├── fake_profile_model.pkl       # Best model — Random Forest
+│   ├── random_forest.pkl
+│   ├── logistic_regression.pkl
+│   ├── decision_tree.pkl
+│   ├── scaler.pkl                   # Fitted StandardScaler
+│   ├── feature_names.pkl            # Ordered list of 20 feature names
+│   ├── feature_importances.pkl      # DataFrame of RF importances
+│   └── model_metrics.pkl            # Accuracy/precision/recall for all 3 models
+│
+├── templates/
+│   └── index.html                   # Full frontend UI (served by Django)
+│
+├── static/
+│   ├── css/style.css                # Dark-theme stylesheet
+│   └── js/app.js                    # Frontend logic (Fetch API calls)
+│
+├── media/
+│   └── uploads/                     # Uploaded CSVs land here
+│
+├── tests/                           # Unit tests
+│   ├── __init__.py
+│   └── test_api.py                  # 8 test cases for all endpoints
+│
+├── conftest.py                      # Shared test fixtures and config
+│
+└── docs/
+    └── screenshots/                 # Add your screenshots here
+        ├── fake_prediction.png
+        ├── real_prediction.png
+        ├── model_comparison.png
+        ├── dashboard.png
+        └── model_info.png
+```
+
+---
+
+## 🧪 Running Tests
+
+```bash
+# Run all tests
+python manage.py test tests
+
+# Run with verbosity (see each test name)
+python manage.py test tests --verbosity=2
+
+# Run a specific test class
+python manage.py test tests.test_api.PredictEndpointTests
+```
+
+**Test Coverage:**
+- ✅ Valid fake profile prediction → returns 200 + correct keys
+- ✅ Valid real profile prediction → returns 200 + "Real"
+- ✅ Missing required field → returns 400
+- ✅ Invalid field type (string instead of int) → returns 400
+- ✅ Edge case — zero followers/following/posts → returns 200
+- ✅ Dashboard endpoint → returns stats keys
+- ✅ Model info endpoint → returns metrics + feature importances
+- ✅ Compare models → returns 3 model results + consensus
+
+---
+
+## 🔮 Future Improvements
+
+- [ ] **SHAP Values** — Add SHAP (SHapley Additive exPlanations) for more granular per-prediction explanations
+- [ ] **User Authentication** — JWT-based auth so users can track their own prediction history
+- [ ] **Download Results** — Export bulk prediction results as CSV
+- [ ] **Rate Limiting** — Per-user rate limiting using DRF throttling with Redis backend
+- [ ] **PostgreSQL** — Migrate from SQLite to PostgreSQL for production
+- [ ] **Docker** — Containerize with Docker + docker-compose for one-command deployment
+- [ ] **CI/CD** — GitHub Actions pipeline to run tests on every push
+- [ ] **Model Retraining** — Admin endpoint to retrain the model on new data
+- [ ] **React Frontend** — Upgrade from vanilla JS to a React SPA
+
+---
+
+## 🧠 Key Technical Decisions
+
+**Q: Why use `AppConfig.ready()` to load the model?**
+Loading a 1.4MB `.pkl` file inside a view would add ~200ms to every single request. By loading it once at startup in `ready()`, the model stays in RAM — each prediction becomes a sub-10ms matrix operation.
+
+**Q: Why DRF Serializers instead of manual validation?**
+Serializers provide automatic field-level validation, type coercion, and standardized 400 responses. A view should never need `if 'field' not in request.data`.
+
+**Q: Why log predictions to a database?**
+The dashboard needs aggregate stats without re-running the model. Every `POST /api/predict/` writes one row to `PredictionLog` — the dashboard just does `SELECT COUNT(*) WHERE is_fake=True`.
+
+---
+
+## 👤 Author
+
+**Kush** — [@kushhcodes](https://github.com/kushhcodes)
+
+---
+
+## 📄 License
+
+This project is open source under the [MIT License](LICENSE).
